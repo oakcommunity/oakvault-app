@@ -8,7 +8,7 @@ const alchemyKey = process.env.NEXT_PUBLIC_ALCHEMY_KEY
 const walletConnectID = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID
 
 const { chains } = configureChains(
-  [baseGoerli, base],
+  [base],
   [alchemyProvider({ apiKey: alchemyKey as string }), publicProvider()],
 )
 
@@ -16,7 +16,7 @@ export const config = createConfig(
   getDefaultConfig({
     alchemyId: alchemyKey as string,
     walletConnectProjectId: walletConnectID as string,
-    appName: 'Caisson',
+    appName: 'Oak Vault',
     autoConnect: true,
     chains,
   }),
