@@ -7,7 +7,8 @@ import {
   useAccount,
   useBalance,
   useContractWrite,
-  usePrepareContractWrite, useWaitForTransaction,
+  usePrepareContractWrite,
+  useWaitForTransaction,
 } from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
 import OakVaultABI from '../../../abi/OakVaultABI.json'
@@ -44,7 +45,7 @@ export function Swap() {
     isApproveOAKLoading,
     isApproveOakSuccess,
     isApproveOAKPrepareError,
-      approveOakHash,
+    approveOakHash,
   } = useOAKAllowanceAndApproval(
     address,
     OakVaultProxyAddress,
@@ -58,7 +59,7 @@ export function Swap() {
     isApproveUSDCSuccess,
     isApproveUSDCError,
     isApproveUSDCPrepareError,
-      approveUSDCHash
+    approveUSDCHash,
   } = useUSDCAllowanceAndApproval(
     address,
     OakVaultProxyAddress,
@@ -73,31 +74,31 @@ export function Swap() {
     isSwapUSDCForOAKPrepareError,
     isSwapUSDCForOAKLoading,
     isSwapOAKForUSDCPrepareError,
-      swapOakForUSDCHash,
-      swapUSDCForOakHash
+    swapOakForUSDCHash,
+    swapUSDCForOakHash,
+      error: swapError
   } = useTokenSwaps(OakVaultProxyAddress, BigInt(amountUSDC), BigInt(amountOAK))
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    formik.handleChange(event);
+    formik.handleChange(event)
 
     // Check if the input value is empty or not a number
-    if (event.target.value === "" || isNaN(parseFloat(event.target.value))) {
+    if (event.target.value === '' || isNaN(parseFloat(event.target.value))) {
       if (swappingOutUSDC) {
-        setAmountUSDC(0);
+        setAmountUSDC(0)
       } else {
-        setAmountOAK(0);
+        setAmountOAK(0)
       }
-      return; // Exit the function early
+      return // Exit the function early
     }
 
-    const inputValue = parseFloat(event.target.value);
+    const inputValue = parseFloat(event.target.value)
     if (swappingOutUSDC) {
-      setAmountUSDC(inputValue * 10 ** 6);
+      setAmountUSDC(inputValue * 10 ** 6)
     } else {
-      setAmountOAK(inputValue * 10 ** 6);
+      setAmountOAK(inputValue * 10 ** 6)
     }
   }
-
 
   const handleSwapOrder = () => {
     setSwappingOutUSDC(!swappingOutUSDC)
@@ -133,7 +134,6 @@ export function Swap() {
       }
     },
   })
-
 
   useWaitForTransaction({
     hash: approveOakHash,
@@ -257,16 +257,30 @@ export function Swap() {
         <button
           type="submit"
           className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7] disabled:bg-gray-500"
-          disabled={(swappingOutUSDC && !amountUSDC &&  usdcAllowance !== BigInt(0n)) || ( !swappingOutUSDC && !amountOAK && oakAllowance !== BigInt(0n) || (swappingOutUSDC && isSwapUSDCForOAKPrepareError && usdcAllowance !== BigInt(0n)) || (!swappingOutUSDC && isSwapOAKForUSDCPrepareError && oakAllowance !== BigInt(0n)))}
+          disabled={
+            (swappingOutUSDC && !amountUSDC && usdcAllowance !== BigInt(0n)) ||
+            (!swappingOutUSDC && !amountOAK && oakAllowance !== BigInt(0n)) ||
+              (swappingOutUSDC &&
+                isSwapUSDCForOAKPrepareError &&
+                usdcAllowance !== BigInt(0n)) ||
+            (!swappingOutUSDC &&
+              isSwapOAKForUSDCPrepareError &&
+              oakAllowance !== BigInt(0n))
+          }
         >
           {(swappingOutUSDC &&
-            usdcAllowance === BigInt(0n) && 'Approve USDC') || (
-              !swappingOutUSDC &&
-              oakAllowance === BigInt(0n) && 'Approve Oak' || (
-                  'Swap'
-              )
-          )}
+            usdcAllowance === BigInt(0n) &&
+            'Approve USDC') ||
+            (!swappingOutUSDC &&
+              oakAllowance === BigInt(0n) &&
+              'Approve Oak') ||
+            'Swap'}
         </button>
+        <div className={'mt-6 text-red-500 max-h-20 overflow-y-scroll'}>
+          {(isSwapUSDCForOAKPrepareError || isSwapOAKForUSDCPrepareError) && swapError && (
+              <>{swapError?.toString().includes('SwapCooldown()') ? 'You can only swap for OAK once a day' : swapError?.toString()}</>
+          )}
+        </div>
       </form>
     </div>
   )

@@ -12,6 +12,7 @@ type TokenSwapsReturnType = {
   isSwapOAKForUSDCError: boolean
   swapOakForUSDCHash: `0x${string}` | undefined
   swapUSDCForOakHash: `0x${string}` | undefined
+  error: Error | null
 }
 
 export function useTokenSwaps(
@@ -20,13 +21,16 @@ export function useTokenSwaps(
   amountOAK: bigint,
 ): TokenSwapsReturnType {
   //@ts-ignore
-  const { config: usdcToOakConfig, isError: isSwapUSDCForOAKPrepareError } =
-    usePrepareContractWrite({
-      address: OakVaultProxyAddress,
-      abi: OakVaultABI,
-      functionName: 'swapUSDCForOak',
-      args: [amountUSDC],
-    })
+  const {
+    config: usdcToOakConfig,
+    isError: isSwapUSDCForOAKPrepareError,
+    error: SwapUSDCPrepareError,
+  } = usePrepareContractWrite({
+    address: OakVaultProxyAddress,
+    abi: OakVaultABI,
+    functionName: 'swapUSDCForOak',
+    args: [amountUSDC],
+  })
 
   //@ts-ignore
   const {
@@ -37,13 +41,16 @@ export function useTokenSwaps(
   } = useContractWrite(usdcToOakConfig)
 
   //@ts-ignore
-  const { config: oakToUsdcConfig, isError: isSwapOAKForUSDCPrepareError } =
-    usePrepareContractWrite({
-      address: OakVaultProxyAddress,
-      abi: OakVaultABI,
-      functionName: 'swapOakForUSDC',
-      args: [amountOAK],
-    })
+  const {
+    config: oakToUsdcConfig,
+    isError: isSwapOAKForUSDCPrepareError,
+    error: swapOakPrepareError,
+  } = usePrepareContractWrite({
+    address: OakVaultProxyAddress,
+    abi: OakVaultABI,
+    functionName: 'swapOakForUSDC',
+    args: [amountOAK],
+  })
 
   //@ts-ignore
   const {
@@ -64,5 +71,6 @@ export function useTokenSwaps(
     isSwapOAKForUSDCError,
     swapOakForUSDCHash: swapOakForUSDCData?.hash,
     swapUSDCForOakHash: swapUSDCForOakData?.hash,
+    error: SwapUSDCPrepareError || swapOakPrepareError,
   }
 }
