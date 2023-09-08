@@ -4,7 +4,7 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from 'wagmi'
-import {MAX_SWAP_LIMIT} from "../../../constants";
+import { MAX_SWAP_LIMIT } from '../../../constants'
 
 type OAKAllowanceAndApprovalReturnType = {
   oakAllowance: any
@@ -21,7 +21,7 @@ export function useOAKAllowanceAndApproval(
   OakVaultProxyAddress: `0x${string}`,
   amountOAK: bigint,
   oakToken: `0x${string}`,
-  userOakBalance: bigint | undefined
+  userOakBalance: bigint | undefined,
 ): OAKAllowanceAndApprovalReturnType {
   //@ts-ignore
   const { data: oakAllowance } = useContractRead({

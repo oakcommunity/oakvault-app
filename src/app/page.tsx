@@ -8,7 +8,6 @@ export default function Home() {
     <>
       <Header />
       <Swap />
-      <ContractInfo />
       <DepositForm />
     </>
   )
