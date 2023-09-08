@@ -1,17 +1,13 @@
 'use client'
 
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useMemo, useState} from 'react'
 import { useFormik } from 'formik'
-import * as Yup from 'yup'
 import {
   useAccount,
   useBalance,
-  useContractWrite,
-  usePrepareContractWrite,
   useWaitForTransaction,
 } from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
-import OakVaultABI from '../../../abi/OakVaultABI.json'
 import { OAK_VAULT_PROXY_ADDRESS } from '../../../constants'
 import { useOAKAllowanceAndApproval } from '../hooks/useOakAllowanceAndApproval'
 import { useUSDCAllowanceAndApproval } from '../hooks/useUSDCAllowanceAndApproval'
@@ -26,6 +22,8 @@ export function Swap() {
   const [amountUSDC, setAmountUSDC] = React.useState<number>(0)
   const [amountOAK, setAmountOAK] = React.useState<number>(0)
   const [swappingOutUSDC, setSwappingOutUSDC] = React.useState<boolean>(true)
+  const [isNotification, setIsNotification] = useState<string | undefined>(undefined)
+
 
   const { data: usdcBalance } = useBalance({
     address: address,
@@ -129,18 +127,19 @@ export function Swap() {
       if (swappingOutUSDC) {
         if (usdcAllowance === 0n) {
           await approveUSDCWrite?.()
+          return; // Exit early after approval
         }
         await swapUSDCForOakWrite?.()
       } else {
         if (oakAllowance === 0n) {
           await approveOAKWrite?.()
+          return; // Exit early after approval
         }
         await swapOakForUSDCWrite?.()
       }
     },
   })
 
-  const [isNotification, setIsNotification] = useState<string | undefined>(undefined)
   useWaitForTransaction({
     hash: approveOakHash,
     onSuccess(data) {
@@ -176,6 +175,16 @@ export function Swap() {
       setIsNotification('Processing')
 
   }, [isApproveUSDCSuccess, isSwapOakForUSDCSuccess, isApproveOakSuccess, isSwapUSDCForOAKSuccess, setIsNotification])
+
+  const isDisabled = useMemo(() => {
+    const isUSDCConditionMet = swappingOutUSDC && !amountUSDC && usdcAllowance !== BigInt(0n);
+    const isOAKConditionMet = !swappingOutUSDC && !amountOAK && oakAllowance !== BigInt(0n);
+    const isUSDCErrorConditionMet = swappingOutUSDC && isSwapUSDCForOAKPrepareError && usdcAllowance !== BigInt(0n);
+    const isOAKErrorConditionMet = !swappingOutUSDC && isSwapOAKForUSDCPrepareError && oakAllowance !== BigInt(0n);
+
+    return isUSDCConditionMet || isOAKConditionMet || isUSDCErrorConditionMet || isOAKErrorConditionMet;
+  }, [swappingOutUSDC, amountUSDC, usdcAllowance, amountOAK, oakAllowance, isSwapUSDCForOAKPrepareError, isSwapOAKForUSDCPrepareError]);
+
 
   return (
     <div className="flex items-center justify-center mt-12 w-11/12 sm:w-3/4 mx-auto">
@@ -292,16 +301,7 @@ export function Swap() {
         <button
           type="submit"
           className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7] disabled:bg-gray-500"
-          disabled={
-            (swappingOutUSDC && !amountUSDC && usdcAllowance !== BigInt(0n)) ||
-            (!swappingOutUSDC && !amountOAK && oakAllowance !== BigInt(0n)) ||
-              (swappingOutUSDC &&
-                isSwapUSDCForOAKPrepareError &&
-                usdcAllowance !== BigInt(0n)) ||
-            (!swappingOutUSDC &&
-              isSwapOAKForUSDCPrepareError &&
-              oakAllowance !== BigInt(0n))
-          }
+          disabled={isDisabled}
         >
           {(swappingOutUSDC &&
             usdcAllowance === BigInt(0n) &&
@@ -312,8 +312,11 @@ export function Swap() {
             'Swap'}
         </button>
         <div className={'mt-6 text-red-500 max-h-20 overflow-y-scroll w-full text-center'}>
-          {(isSwapUSDCForOAKPrepareError || isSwapOAKForUSDCPrepareError) && swapError && (
-              <>{swapError?.toString().includes('SwapCooldown()') ? 'You can only swap for OAK once a day' : swapError?.toString()}</>
+          {(isSwapOAKForUSDCPrepareError && !swappingOutUSDC) && swapError && (
+              <>{(swapError?.toString())}</>
+          )}
+          {(isSwapUSDCForOAKPrepareError && swappingOutUSDC) && swapError && (
+              <>{(swapError?.toString().includes('SwapCooldown()') && swappingOutUSDC) ? 'You can only swap for OAK once a day' : '' ?.toString()}</>
           )}
         </div>
         {!swappingOutUSDC && (
@@ -321,7 +324,6 @@ export function Swap() {
               Oak Vault charges a 5% tax on Oak {'->'} USDC Swaps
             </div>
         )}
-
         {!!isNotification && (
             <Notification message={isNotification} onClose={setIsNotification}  />
         )}
