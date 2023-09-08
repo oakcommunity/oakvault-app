@@ -1,13 +1,13 @@
 'use client'
 
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import {useAccount, useWaitForTransaction} from 'wagmi'
+import { useAccount, useWaitForTransaction } from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
 import { OAK_VAULT_PROXY_ADDRESS } from '../../../constants'
 import { useTokenAllowanceAndApproval } from '../../swap/hooks/useTokenAllowanceAndApproval'
-import Notification from "../../../components/client/Notification";
+import Notification from '../../../components/client/Notification'
 
 const DepositForm: React.FC = () => {
   const { address } = useAccount()
@@ -79,12 +79,14 @@ const DepositForm: React.FC = () => {
   })
 
   const [notificationMessage, setNotificationMessage] = useState<
-      string | undefined
-      >(undefined)
+    string | undefined
+  >(undefined)
   useWaitForTransaction({
     hash: depositHash,
     onSuccess(data) {
-      setNotificationMessage(`${amountToDeposit / 10 ** 6} ${depositType} Deposited`)
+      setNotificationMessage(
+        `${amountToDeposit / 10 ** 6} ${depositType} Deposited`,
+      )
     },
   })
 
@@ -142,10 +144,10 @@ const DepositForm: React.FC = () => {
         </button>
       </form>
       {!!notificationMessage && (
-          <Notification
-              message={notificationMessage}
-              onClose={setNotificationMessage}
-          />
+        <Notification
+          message={notificationMessage}
+          onClose={setNotificationMessage}
+        />
       )}
     </div>
   )

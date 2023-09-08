@@ -43,9 +43,7 @@ export function ContractInfo({
         <div className='flex flex-col mb-2'>
           <div className={'text-sm text-[#faf5b7]'}>contract address</div>
           <div className={'break-words'}>
-            <a
-              href={`https://basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}
-            >
+            <a href={`https://basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}>
               {OAK_VAULT_PROXY_ADDRESS!}
             </a>
           </div>
