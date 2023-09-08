@@ -23,12 +23,14 @@ export function ContractInfo({
     address: OAK_VAULT_PROXY_ADDRESS!,
     token: usdcToken,
     chainId: 84531,
+    watch: true,
   })
 
   const { data: oakBalance } = useBalance({
     address: OAK_VAULT_PROXY_ADDRESS!,
     token: oakToken,
     chainId: 84531,
+    watch: true,
   })
 
   return (

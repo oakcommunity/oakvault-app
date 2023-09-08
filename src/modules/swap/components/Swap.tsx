@@ -25,12 +25,14 @@ export function Swap() {
   const { data: usdcBalance } = useBalance({
     address: address,
     token: usdcToken,
+    watch: true,
     chainId: 84531,
   })
 
   const { data: oakBalance } = useBalance({
     address: address,
     token: oakToken,
+    watch: true,
     chainId: 84531,
   })
 
