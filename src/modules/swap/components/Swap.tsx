@@ -39,7 +39,8 @@ export function Swap() {
     address: usdcToken,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, process.env.NEXT_PUBLIC_OAK_VAULT_PROXY],
+    args: [address!, OakVaultProxyAddress!],
+    enabled: !!address
   })
 
   //@ts-ignore
@@ -48,8 +49,8 @@ export function Swap() {
     abi: erc20ABI,
     functionName: 'approve',
     args: [
-      process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
-      amountUSDC,
+      OakVaultProxyAddress!,
+      BigInt(amountUSDC),
     ],
   })
 
@@ -60,7 +61,8 @@ export function Swap() {
     address: oakToken,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, process.env.NEXT_PUBLIC_OAK_VAULT_PROXY],
+    args: [address!, OakVaultProxyAddress!],
+    enabled: !!address
   })
 
   //@ts-ignore
@@ -69,8 +71,8 @@ export function Swap() {
     abi: erc20ABI,
     functionName: 'approve',
     args: [
-      process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
-      amountOAK,
+      OakVaultProxyAddress!,
+      BigInt(amountOAK),
     ],
   })
 
@@ -78,7 +80,7 @@ export function Swap() {
 
   //@ts-ignore
   const {config: usdcToOakConfig, isError: isSwapUSDCForOAKPrepareError} = usePrepareContractWrite({
-    address: process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
+    address: OakVaultProxyAddress!,
     abi: OakVaultABI,
     functionName: 'swapUSDCForOak',
     args: [amountUSDC],
@@ -91,7 +93,7 @@ export function Swap() {
 
   //@ts-ignore
   const {config: oakToUsdcConfig, isError: isSwapOAKForUSDCPrepareError} = usePrepareContractWrite({
-    address: process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
+    address: OakVaultProxyAddress!,
     abi: OakVaultABI,
     functionName: 'swapOakForUSDC',
     args: [amountOAK],
@@ -278,10 +280,10 @@ export function Swap() {
           type="submit"
           className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7]"
         >
-          {swappingOutUSDC && usdcAllowance === 0n && !isApproveUSDCSuccess && (isApproveUSDCLoading ? 'Approving...' : 'Approve USDC')}
-          {!swappingOutUSDC && oakAllowance === 0n && !isApproveOakSuccess && (isApproveOAKLoading ? 'Approving...' : 'Approve Oak')}
-          {(swappingOutUSDC && usdcAllowance !== 0n) || isApproveUSDCSuccess && (isSwapUSDCForOAKLoading ? 'Swapping...': 'Swap')}
-          {(!swappingOutUSDC && oakAllowance !== 0n) || isApproveOakSuccess && (isSwapOAKForUSDCLoading ? 'Swapping..' : 'Swap')}
+          {swappingOutUSDC && usdcAllowance ===BigInt(0n) && !isApproveUSDCSuccess && (isApproveUSDCLoading ? 'Approving...' : 'Approve USDC')}
+          {!swappingOutUSDC && oakAllowance ===BigInt(0n) && !isApproveOakSuccess && (isApproveOAKLoading ? 'Approving...' : 'Approve Oak')}
+          {(swappingOutUSDC && usdcAllowance !==BigInt(0n)) || isApproveUSDCSuccess && (isSwapUSDCForOAKLoading ? 'Swapping...': 'Swap')}
+          {(!swappingOutUSDC && oakAllowance !==BigInt(0n)) || isApproveOakSuccess && (isSwapOAKForUSDCLoading ? 'Swapping..' : 'Swap')}
         </button>
       </form>
     </div>

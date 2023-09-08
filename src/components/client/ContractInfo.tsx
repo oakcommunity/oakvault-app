@@ -7,13 +7,13 @@ export function ContractInfo() {
   const { address } = useAccount()
   const { usdcToken, oakToken } = useOakVault()
   const { data: usdcBalance } = useBalance({
-    address: process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
+    address: OakVaultProxyAddress!,
     token: usdcToken,
     chainId: 84531,
   })
 
   const { data: oakBalance } = useBalance({
-    address: process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
+    address: OakVaultProxyAddress!,
     token: oakToken,
     chainId: 84531,
   })
@@ -24,7 +24,7 @@ export function ContractInfo() {
           <div className="ml-auto mb-6"><span className={'text-[#faf5b7'}>Oak Vault</span> Contract Information</div>
           <div className='flex flex-col mb-2'>
             <div className={'text-sm text-[#faf5b7]'}>contract address</div>
-            <div>{process.env.NEXT_PUBLIC_OAK_VAULT_PROXY}</div>
+            <div>{OakVaultProxyAddress!}</div>
           </div>
           <div className='flex flex-col mb-2'>
             <div className={'text-sm text-[#faf5b7]'}>usdc balance</div>

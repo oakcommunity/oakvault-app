@@ -23,7 +23,8 @@ const DepositUsdcForm: React.FC = () => {
     address: usdcToken,
     abi: erc20ABI,
     functionName: 'allowance',
-    args: [address, process.env.NEXT_PUBLIC_OAK_VAULT_PROXY],
+    args: [address!, OakVaultProxyAddress!],
+    enabled: !!address
   })
 
   //@ts-ignore
@@ -32,7 +33,7 @@ const DepositUsdcForm: React.FC = () => {
     abi: erc20ABI,
     functionName: 'approve',
     args: [
-      process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
+      OakVaultProxyAddress!,
       BigInt(
         '115792089237316195423570985008687907853269984665640564039457584007913129639935',
       ),
@@ -44,7 +45,7 @@ const DepositUsdcForm: React.FC = () => {
   // TODO: fix
   //@ts-ignore
   const depositConfig = usePrepareContractWrite({
-    address: process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
+    address: OakVaultProxyAddress!,
     abi: OakVaultABI,
     functionName: 'depositUSDC' as const,
     args: [usdcToken, amountToDeposit],
@@ -76,7 +77,7 @@ const DepositUsdcForm: React.FC = () => {
   }
 
   const handleButtonClick = async () => {
-    if (allowance === 0n && approveWrite) {
+    if (allowance === BigInt(0n) && approveWrite) {
       await approveWrite()
     } else {
       depositWrite?.()
