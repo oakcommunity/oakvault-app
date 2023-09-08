@@ -182,12 +182,12 @@ export function Swap() {
       <form
         onSubmit={formik.handleSubmit}
         className={
-          'flex flex-col items-center w-full sm:w-[600px] bg-[#16372b] p-4 sm:p-12 sm:pt-16 rounded-xl border border-black shadow-sm'
+          'flex flex-col items-center w-full sm:w-[600px] bg-[#16372b] p-4 sm:p-12 sm:pt-8 rounded-xl border border-black shadow-sm'
         }
       >
         <div
           className={
-            'font-bold text-2xl -mt-12 pb-12 self-start text-[#ffffe2]'
+            'font-bold text-2xl self-start text-[#ffffe2] mb-14'
           }
         >
           Swap
@@ -217,7 +217,7 @@ export function Swap() {
             <div className={'w-8 h-8 rounded-full overflow-hidden'}>
               <img
                 src={
-                  swappingOutUSDC ? '/icons/USDCIcon.svg' : '/icons/OakIcon.png'
+                  swappingOutUSDC ? '/icons/usdc-icon.svg' : '/icons/oak-icon.png'
                 }
                 className={'w-full h-full'}
               />
@@ -278,8 +278,8 @@ export function Swap() {
               <img
                 src={
                   !swappingOutUSDC
-                    ? '/icons/USDCIcon.svg'
-                    : '/icons/OakIcon.png'
+                    ? '/icons/usdc-icon.svg'
+                    : '/icons/oak-icon.png'
                 }
                 className={'w-full h-full'}
               />
