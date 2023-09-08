@@ -12,6 +12,7 @@ import {
 import useOakVault from '../../hooks/useOakVault'
 import OakVaultABI from '../../abi/OakVaultABI.json'
 import { erc20ABI } from 'wagmi'
+import { OakVaultProxyAddress } from '../../constants'
 
 const DepositOakForm: React.FC = () => {
   const { address } = useAccount()
@@ -24,7 +25,7 @@ const DepositOakForm: React.FC = () => {
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address!, OakVaultProxyAddress!],
-    enabled: !!address
+    enabled: !!address,
   })
 
   //@ts-ignore
@@ -33,7 +34,7 @@ const DepositOakForm: React.FC = () => {
     abi: erc20ABI,
     functionName: 'approve',
     args: [
-     OakVaultProxyAddress!,
+      OakVaultProxyAddress!,
       BigInt(
         '115792089237316195423570985008687907853269984665640564039457584007913129639935',
       ),
@@ -44,7 +45,7 @@ const DepositOakForm: React.FC = () => {
 
   //@ts-ignore
   const depositConfig = usePrepareContractWrite({
-    address:OakVaultProxyAddress!,
+    address: OakVaultProxyAddress!,
     abi: OakVaultABI,
     functionName: 'depositOak',
     args: [oakToken, amountToDeposit],

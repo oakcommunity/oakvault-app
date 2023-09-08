@@ -12,6 +12,7 @@ import {
 import useOakVault from '../../hooks/useOakVault'
 import OakVaultABI from '../../abi/OakVaultABI.json'
 import { erc20ABI } from 'wagmi'
+import { OakVaultProxyAddress } from '../../constants'
 
 const DepositForm: React.FC = () => {
   const { address } = useAccount()
@@ -28,7 +29,7 @@ const DepositForm: React.FC = () => {
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address!, OakVaultProxyAddress!],
-    enabled: !!address
+    enabled: !!address,
   })
 
   //@ts-ignore
