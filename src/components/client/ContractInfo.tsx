@@ -2,7 +2,7 @@
 
 import { useBalance } from 'wagmi'
 import useOakVault from '../../hooks/useOakVault'
-import { OAK_VAULT_PROXY_ADDRESS } from '../../constants'
+import { CHAIN_ID, OAK_VAULT_PROXY_ADDRESS } from '../../constants'
 import Notification from './Notification'
 import React from 'react'
 
@@ -22,14 +22,14 @@ export function ContractInfo({
   const { data: usdcBalance } = useBalance({
     address: OAK_VAULT_PROXY_ADDRESS!,
     token: usdcToken,
-    chainId: 84531,
+    chainId: CHAIN_ID,
     watch: true,
   })
 
   const { data: oakBalance } = useBalance({
     address: OAK_VAULT_PROXY_ADDRESS!,
     token: oakToken,
-    chainId: 84531,
+    chainId: CHAIN_ID,
     watch: true,
   })
 
@@ -42,7 +42,13 @@ export function ContractInfo({
         </div>
         <div className='flex flex-col mb-2'>
           <div className={'text-sm text-[#faf5b7]'}>contract address</div>
-          <div className={'break-words'}><a href={`https://goerli.basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}>{OAK_VAULT_PROXY_ADDRESS!}</a></div>
+          <div className={'break-words'}>
+            <a
+              href={`https://goerli.basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}
+            >
+              {OAK_VAULT_PROXY_ADDRESS!}
+            </a>
+          </div>
         </div>
         <div className='flex flex-col mb-2'>
           <div className={'text-sm text-[#faf5b7]'}>usdc balance</div>

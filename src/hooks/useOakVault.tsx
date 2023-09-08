@@ -1,6 +1,6 @@
 import OakVaultABI from '../abi/OakVaultABI.json'
 import { useContractReads } from 'wagmi'
-import { OAK_VAULT_PROXY_ADDRESS } from '../constants'
+import { CHAIN_ID, OAK_VAULT_PROXY_ADDRESS } from '../constants'
 
 type UseOakVaultResponse = {
   isOwner: boolean
@@ -310,7 +310,7 @@ const useOakVault = (address?: `0x${string}`): UseOakVaultResponse => {
         type: 'function',
       },
     ] as const,
-    chainId: 84531,
+    chainId: CHAIN_ID,
   }
 
   const { data } = useContractReads({

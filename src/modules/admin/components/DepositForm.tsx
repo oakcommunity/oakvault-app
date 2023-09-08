@@ -1,18 +1,13 @@
 'use client'
 
-import React from 'react'
+import React, {useState} from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import {
-  useAccount,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-} from 'wagmi'
+import {useAccount, useWaitForTransaction} from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
-import OakVaultABI from '../../../abi/OakVaultABI.json'
-import { erc20ABI } from 'wagmi'
 import { OAK_VAULT_PROXY_ADDRESS } from '../../../constants'
+import { useTokenAllowanceAndApproval } from '../../swap/hooks/useTokenAllowanceAndApproval'
+import Notification from "../../../components/client/Notification";
 
 const DepositForm: React.FC = () => {
   const { address } = useAccount()
@@ -23,41 +18,24 @@ const DepositForm: React.FC = () => {
 
   const tokenAddress = depositType === 'USDC' ? usdcToken : oakToken
 
-  //@ts-ignore
-  const { data: allowance } = useContractRead({
-    address: tokenAddress,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address!, OAK_VAULT_PROXY_ADDRESS!],
-    enabled: !!address,
-  })
-
-  //@ts-ignore
-  const approveConfig = usePrepareContractWrite({
-    address: tokenAddress,
-    abi: erc20ABI,
-    functionName: 'approve',
-    args: [
-      OAK_VAULT_PROXY_ADDRESS!,
-      BigInt(
-        '115792089237316195423570985008687907853269984665640564039457584007913129639935',
-      ),
-    ],
-  })
-
-  const { write: approveWrite } = useContractWrite(approveConfig.config)
-
-  //@ts-ignore
-  const depositConfig = usePrepareContractWrite({
-    address: OAK_VAULT_PROXY_ADDRESS!,
-    abi: OakVaultABI,
-    functionName: depositType === 'USDC' ? 'depositUSDC' : 'depositOak',
-    args: [tokenAddress, amountToDeposit],
-    enabled: amountToDeposit > 0,
-  })
-
-  //@ts-ignore
-  const { write: depositWrite } = useContractWrite(depositConfig.config)
+  const {
+    allowance,
+    approveWrite,
+    approveHash,
+    isApproveError,
+    isPrepareError,
+    isApproveLoading,
+    isDepositError,
+    isDepositLoading,
+    depositHash,
+    depositWrite,
+  } = useTokenAllowanceAndApproval(
+    address,
+    tokenAddress,
+    OAK_VAULT_PROXY_ADDRESS!,
+    depositType,
+    amountToDeposit,
+  )
 
   const validationSchema = Yup.object({
     amount: Yup.number()
@@ -77,7 +55,11 @@ const DepositForm: React.FC = () => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     formik.handleChange(event)
     const inputValue = parseFloat(event.target.value)
-    setAmountToDeposit(inputValue * 10 ** 6)
+    if (event.target.value === '' || isNaN(parseFloat(event.target.value))) {
+      setAmountToDeposit(0)
+    } else {
+      setAmountToDeposit(inputValue * 10 ** 6)
+    }
   }
 
   const handleButtonClick = async () => {
@@ -96,47 +78,76 @@ const DepositForm: React.FC = () => {
     onSubmit: handleButtonClick,
   })
 
+  const [notificationMessage, setNotificationMessage] = useState<
+      string | undefined
+      >(undefined)
+  useWaitForTransaction({
+    hash: depositHash,
+    onSuccess(data) {
+      setNotificationMessage(`${amountToDeposit / 10 ** 6} ${depositType} Deposited`)
+    },
+  })
+
   if (!isOwner) return null
 
   return (
-    <form onSubmit={formik.handleSubmit} className="max-w-sm mx-auto mt-4">
-      <div>
-        <select
-          value={depositType}
-          onChange={(e) => setDepositType(e.target.value as 'USDC' | 'OAK')}
-        >
-          <option value="USDC">USDC</option>
-          <option value="OAK">$OAK</option>
-        </select>
-      </div>
-      <div className="mb-4">
-        <label htmlFor="amount" className="block text-gray-700 font-semibold">
-          Amount ({depositType === 'USDC' ? 'USDC' : '$OAK'})
-        </label>
-        <input
-          type="number"
-          id="amount"
-          name="amount"
-          className={`mt-2 p-2 w-full border ${
-            formik.touched.amount && formik.errors.amount
-              ? 'border-red-500'
-              : 'border-gray-300'
-          } rounded`}
-          onChange={handleInputChange}
-          onBlur={formik.handleBlur}
-          value={formik.values.amount}
-        />
-        {formik.touched.amount && formik.errors.amount && (
-          <p className="text-red-500 text-sm mt-1">{formik.errors.amount}</p>
-        )}
-      </div>
-      <button
-        type="submit"
-        className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
+    <div
+      className={
+        'flex items-center justify-center mt-12 w-11/12 sm:w-3/4 mx-auto mb-20'
+      }
+    >
+      <form
+        onSubmit={formik.handleSubmit}
+        className={
+          'flex flex-col items-center w-full sm:w-[600px] bg-[#16372b] p-4 sm:p-12 sm:pt-8 rounded-xl border border-black shadow-sm'
+        }
       >
-        Deposit
-      </button>
-    </form>
+        <div className={'font-bold text-2xl self-start text-[#ffffe2] mb-14'}>
+          Deposit
+        </div>
+        <div>
+          <select
+            value={depositType}
+            onChange={(e) => setDepositType(e.target.value as 'USDC' | 'OAK')}
+            className="w-full border py-4 px-4 rounded no-spinner text-3xl bg-[#ffffe2]"
+          >
+            <option value="USDC">USDC</option>
+            <option value="OAK">$OAK</option>
+          </select>
+        </div>
+        <div className="w-full mb-4 mt-4">
+          <label htmlFor="amount" className="text-[#ffffe2] mb-2">
+            Deposit Amount - ({depositType === 'USDC' ? 'USDC' : '$OAK'})
+          </label>
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            placeholder={depositType}
+            className="w-full border py-8 px-8 rounded no-spinner text-3xl bg-[#ffffe2]"
+            onChange={handleInputChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.amount}
+          />
+          {formik.touched.amount && formik.errors.amount && (
+            <p className="text-red-500 text-sm mt-1">{formik.errors.amount}</p>
+          )}
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7] disabled:bg-gray-500"
+          disabled={isPrepareError || amountToDeposit === 0}
+        >
+          Deposit
+        </button>
+      </form>
+      {!!notificationMessage && (
+          <Notification
+              message={notificationMessage}
+              onClose={setNotificationMessage}
+          />
+      )}
+    </div>
   )
 }
 

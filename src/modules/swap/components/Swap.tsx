@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useFormik } from 'formik'
 import { useAccount, useBalance, useWaitForTransaction } from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
-import { OAK_VAULT_PROXY_ADDRESS } from '../../../constants'
+import { CHAIN_ID, OAK_VAULT_PROXY_ADDRESS } from '../../../constants'
 import { useOAKAllowanceAndApproval } from '../hooks/useOakAllowanceAndApproval'
 import { useUSDCAllowanceAndApproval } from '../hooks/useUSDCAllowanceAndApproval'
 import { useTokenSwaps } from '../hooks/useTokenSwaps'
@@ -26,14 +26,14 @@ export function Swap() {
     address: address,
     token: usdcToken,
     watch: true,
-    chainId: 84531,
+    chainId: CHAIN_ID,
   })
 
   const { data: oakBalance } = useBalance({
     address: address,
     token: oakToken,
     watch: true,
-    chainId: 84531,
+    chainId: CHAIN_ID,
   })
 
   const {
@@ -377,10 +377,22 @@ export function Swap() {
         notification={notificationMessage}
         setIsNotificationMessage={setNotificationMessage}
       />
-      <div className={'flex gap-4 items-center justify-center py-9 text-[#faf5b7]'}>
-        <a href={'https://github.com/oakcommunity'} target={'_blank'} className={''}>Github</a>
-        <a href={'https://twitter.com/oakcurrency'} target={'_blank'}>Twitter</a>
-        <a href={'https://discord.gg/Rv259D4X'} target={'_blank'}>Discord</a>
+      <div
+        className={'flex gap-4 items-center justify-center py-9 text-[#faf5b7]'}
+      >
+        <a
+          href={'https://github.com/oakcommunity'}
+          target={'_blank'}
+          className={''}
+        >
+          Github
+        </a>
+        <a href={'https://twitter.com/oakcurrency'} target={'_blank'}>
+          Twitter
+        </a>
+        <a href={'https://discord.gg/Rv259D4X'} target={'_blank'}>
+          Discord
+        </a>
       </div>
     </>
   )
