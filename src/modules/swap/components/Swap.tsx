@@ -6,14 +6,16 @@ import * as Yup from 'yup'
 import {
   useAccount,
   useBalance,
-  useContractRead,
   useContractWrite,
-  usePrepareContractWrite,
+  usePrepareContractWrite, useWaitForTransaction,
 } from 'wagmi'
-import { erc20ABI } from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
 import OakVaultABI from '../../../abi/OakVaultABI.json'
 import { OakVaultProxyAddress } from '../../../constants'
+import { useOAKAllowanceAndApproval } from '../hooks/useOakAllowanceAndApproval'
+import { useUSDCAllowanceAndApproval } from '../hooks/useUSDCAllowanceAndApproval'
+import { useTokenSwaps } from '../hooks/useTokenSwaps'
+import { validationSchema } from '../utils/validations'
 
 export function Swap() {
   const { address } = useAccount()
@@ -35,106 +37,67 @@ export function Swap() {
     chainId: 84531,
   })
 
-  //@ts-ignore
-  const { data: usdcAllowance } = useContractRead({
-    address: usdcToken,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address!, OakVaultProxyAddress!],
-    enabled: !!address,
-  })
-
-  //@ts-ignore
-  const { config: approveUsdcConfig, isError: isApproveUSDCPrepareError } =
-    usePrepareContractWrite({
-      address: usdcToken,
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [OakVaultProxyAddress!, BigInt(amountUSDC)],
-    })
+  const {
+    oakAllowance,
+    approveOAKWrite,
+    isApproveOAKError,
+    isApproveOAKLoading,
+    isApproveOakSuccess,
+    isApproveOAKPrepareError,
+      approveOakHash,
+  } = useOAKAllowanceAndApproval(
+    address,
+    OakVaultProxyAddress,
+    BigInt(amountOAK),
+    oakToken,
+  )
+  const {
+    usdcAllowance,
+    approveUSDCWrite,
+    isApproveUSDCLoading,
+    isApproveUSDCSuccess,
+    isApproveUSDCError,
+    isApproveUSDCPrepareError,
+      approveUSDCHash
+  } = useUSDCAllowanceAndApproval(
+    address,
+    OakVaultProxyAddress,
+    BigInt(amountUSDC),
+    usdcToken,
+  )
 
   const {
-    write: approveUSDCWrite,
-    isSuccess: isApproveUSDCSuccess,
-    isError: isApproveUSDCError,
-    isLoading: isApproveUSDCLoading,
-  } = useContractWrite(approveUsdcConfig)
-
-  //@ts-ignore
-  const { data: oakAllowance } = useContractRead({
-    address: oakToken,
-    abi: erc20ABI,
-    functionName: 'allowance',
-    args: [address!, OakVaultProxyAddress!],
-    enabled: !!address,
-  })
-
-  //@ts-ignore
-  const { config: approveOakConfig, isError: isApproveOAKPrepareError } =
-    usePrepareContractWrite({
-      address: oakToken,
-      abi: erc20ABI,
-      functionName: 'approve',
-      args: [OakVaultProxyAddress!, BigInt(amountOAK)],
-    })
-
-  const {
-    write: approveOAKWrite,
-    isSuccess: isApproveOakSuccess,
-    isError: isApproveOAKError,
-    isLoading: isApproveOAKLoading,
-  } = useContractWrite(approveOakConfig)
-
-  //@ts-ignore
-  const { config: usdcToOakConfig, isError: isSwapUSDCForOAKPrepareError } =
-    usePrepareContractWrite({
-      address: OakVaultProxyAddress!,
-      abi: OakVaultABI,
-      functionName: 'swapUSDCForOak',
-      args: [amountUSDC],
-    })
-
-  //@ts-ignore
-  const { write: swapUSDCForOakWrite, isLoading: isSwapUSDCForOAKLoading } =
-    useContractWrite(usdcToOakConfig)
-
-  //@ts-ignore
-  const { config: oakToUsdcConfig, isError: isSwapOAKForUSDCPrepareError } =
-    usePrepareContractWrite({
-      address: OakVaultProxyAddress!,
-      abi: OakVaultABI,
-      functionName: 'swapOakForUSDC',
-      args: [amountOAK],
-    })
-
-  //@ts-ignore
-  const { write: swapOakForUSDCWrite, isLoading: isSwapOAKForUSDCLoading } =
-    useContractWrite(oakToUsdcConfig)
-
-  const validationSchema = Yup.object({
-    amount: Yup.number()
-      .max(100, 'Amount cannot be more than 100')
-      .positive('Amount must be positive')
-      .test(
-        'decimal-places',
-        'Amount cannot have more than 6 decimal places',
-        (value) => {
-          if (!value) return true
-          const decimalPlaces = value.toString().split('.')[1]?.length || 0
-          return decimalPlaces <= 6
-        },
-      ),
-  })
+    swapOakForUSDCWrite,
+    swapUSDCForOakWrite,
+    isSwapOAKForUSDCLoading,
+    isSwapUSDCForOAKPrepareError,
+    isSwapUSDCForOAKLoading,
+    isSwapOAKForUSDCPrepareError,
+      swapOakForUSDCHash,
+      swapUSDCForOakHash
+  } = useTokenSwaps(OakVaultProxyAddress, BigInt(amountUSDC), BigInt(amountOAK))
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    formik.handleChange(event)
-    const inputValue = parseFloat(event.target.value)
+    formik.handleChange(event);
+
+    // Check if the input value is empty or not a number
+    if (event.target.value === "" || isNaN(parseFloat(event.target.value))) {
+      if (swappingOutUSDC) {
+        setAmountUSDC(0);
+      } else {
+        setAmountOAK(0);
+      }
+      return; // Exit the function early
+    }
+
+    const inputValue = parseFloat(event.target.value);
     if (swappingOutUSDC) {
-      setAmountUSDC(inputValue * 10 ** 6)
+      setAmountUSDC(inputValue * 10 ** 6);
     } else {
-      setAmountOAK(inputValue * 10 ** 6)
+      setAmountOAK(inputValue * 10 ** 6);
     }
   }
+
 
   const handleSwapOrder = () => {
     setSwappingOutUSDC(!swappingOutUSDC)
@@ -168,6 +131,14 @@ export function Swap() {
         }
         await swapOakForUSDCWrite?.()
       }
+    },
+  })
+
+
+  useWaitForTransaction({
+    hash: approveOakHash,
+    onSuccess(data) {
+      console.log('Success', data)
     },
   })
 
@@ -285,22 +256,16 @@ export function Swap() {
         </div>
         <button
           type="submit"
-          className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7]"
+          className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7] disabled:bg-gray-500"
+          disabled={(swappingOutUSDC && !amountUSDC &&  usdcAllowance !== BigInt(0n)) || ( !swappingOutUSDC && !amountOAK && oakAllowance !== BigInt(0n) || (swappingOutUSDC && isSwapUSDCForOAKPrepareError && usdcAllowance !== BigInt(0n)) || (!swappingOutUSDC && isSwapOAKForUSDCPrepareError && oakAllowance !== BigInt(0n)))}
         >
-          {swappingOutUSDC &&
-            usdcAllowance === BigInt(0n) &&
-            !isApproveUSDCSuccess &&
-            (isApproveUSDCLoading ? 'Approving...' : 'Approve USDC')}
-          {!swappingOutUSDC &&
-            oakAllowance === BigInt(0n) &&
-            !isApproveOakSuccess &&
-            (isApproveOAKLoading ? 'Approving...' : 'Approve Oak')}
-          {(swappingOutUSDC && usdcAllowance !== BigInt(0n)) ||
-            (isApproveUSDCSuccess &&
-              (isSwapUSDCForOAKLoading ? 'Swapping...' : 'Swap'))}
-          {(!swappingOutUSDC && oakAllowance !== BigInt(0n)) ||
-            (isApproveOakSuccess &&
-              (isSwapOAKForUSDCLoading ? 'Swapping..' : 'Swap'))}
+          {(swappingOutUSDC &&
+            usdcAllowance === BigInt(0n) && 'Approve USDC') || (
+              !swappingOutUSDC &&
+              oakAllowance === BigInt(0n) && 'Approve Oak' || (
+                  'Swap'
+              )
+          )}
         </button>
       </form>
     </div>

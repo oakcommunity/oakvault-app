@@ -9,10 +9,10 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from 'wagmi'
-import useOakVault from '../../hooks/useOakVault'
-import OakVaultABI from '../../abi/OakVaultABI.json'
+import useOakVault from '../../../hooks/useOakVault'
+import OakVaultABI from '../../../abi/OakVaultABI.json'
 import { erc20ABI } from 'wagmi'
-import { OakVaultProxyAddress } from '../../constants'
+import { OakVaultProxyAddress } from '../../../constants'
 
 const DepositForm: React.FC = () => {
   const { address } = useAccount()
