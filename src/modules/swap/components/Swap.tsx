@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import {
@@ -12,11 +12,12 @@ import {
 } from 'wagmi'
 import useOakVault from '../../../hooks/useOakVault'
 import OakVaultABI from '../../../abi/OakVaultABI.json'
-import { OakVaultProxyAddress } from '../../../constants'
+import { OAK_VAULT_PROXY_ADDRESS } from '../../../constants'
 import { useOAKAllowanceAndApproval } from '../hooks/useOakAllowanceAndApproval'
 import { useUSDCAllowanceAndApproval } from '../hooks/useUSDCAllowanceAndApproval'
 import { useTokenSwaps } from '../hooks/useTokenSwaps'
 import { validationSchema } from '../utils/validations'
+import Notification from "../../../components/client/Notification";
 
 export function Swap() {
   const { address } = useAccount()
@@ -48,9 +49,10 @@ export function Swap() {
     approveOakHash,
   } = useOAKAllowanceAndApproval(
     address,
-    OakVaultProxyAddress,
+    OAK_VAULT_PROXY_ADDRESS,
     BigInt(amountOAK),
     oakToken,
+      oakBalance?.value
   )
   const {
     usdcAllowance,
@@ -62,9 +64,10 @@ export function Swap() {
     approveUSDCHash,
   } = useUSDCAllowanceAndApproval(
     address,
-    OakVaultProxyAddress,
+    OAK_VAULT_PROXY_ADDRESS,
     BigInt(amountUSDC),
     usdcToken,
+      usdcBalance?.value
   )
 
   const {
@@ -74,10 +77,12 @@ export function Swap() {
     isSwapUSDCForOAKPrepareError,
     isSwapUSDCForOAKLoading,
     isSwapOAKForUSDCPrepareError,
+    isSwapUSDCForOAKSuccess,
+    isSwapOakForUSDCSuccess,
     swapOakForUSDCHash,
     swapUSDCForOakHash,
       error: swapError
-  } = useTokenSwaps(OakVaultProxyAddress, BigInt(amountUSDC), BigInt(amountOAK))
+  } = useTokenSwaps(OAK_VAULT_PROXY_ADDRESS, BigInt(amountUSDC), BigInt(amountOAK))
 
   const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     formik.handleChange(event)
@@ -135,12 +140,42 @@ export function Swap() {
     },
   })
 
+  const [isNotification, setIsNotification] = useState<string | undefined>(undefined)
   useWaitForTransaction({
     hash: approveOakHash,
     onSuccess(data) {
+      setIsNotification('Oak Approved')
       console.log('Success', data)
     },
   })
+
+  useWaitForTransaction({
+    hash: approveUSDCHash,
+    onSuccess(data) {
+      setIsNotification('USDC Approved')
+      console.log('Success', data)
+    },
+  })
+
+  useWaitForTransaction({
+    hash: swapUSDCForOakHash,
+    onSuccess(data) {
+      setIsNotification('Successfully swapped USDC for OAK')
+    },
+  })
+
+  useWaitForTransaction({
+    hash: swapOakForUSDCHash,
+    onSuccess(data) {
+      setIsNotification('Successfully swapped Oak for USDC')
+    },
+  })
+
+  useEffect(() => {
+    if(isApproveUSDCSuccess || isSwapOakForUSDCSuccess || isApproveOakSuccess || isSwapUSDCForOAKSuccess)
+      setIsNotification('Processing')
+
+  }, [isApproveUSDCSuccess, isSwapOakForUSDCSuccess, isApproveOakSuccess, isSwapUSDCForOAKSuccess, setIsNotification])
 
   return (
     <div className="flex items-center justify-center mt-12 w-11/12 sm:w-3/4 mx-auto">
@@ -276,11 +311,20 @@ export function Swap() {
               'Approve Oak') ||
             'Swap'}
         </button>
-        <div className={'mt-6 text-red-500 max-h-20 overflow-y-scroll'}>
+        <div className={'mt-6 text-red-500 max-h-20 overflow-y-scroll w-full'}>
           {(isSwapUSDCForOAKPrepareError || isSwapOAKForUSDCPrepareError) && swapError && (
               <>{swapError?.toString().includes('SwapCooldown()') ? 'You can only swap for OAK once a day' : swapError?.toString()}</>
           )}
         </div>
+        {!swappingOutUSDC && (
+            <div className={'text-center mt-6 text-[#faf5b7] max-h-20 overflow-y-scroll w-full'}>
+              Oak Vault charges a 5% tax on Oak {'->'} USDC Swaps
+            </div>
+        )}
+
+        {!!isNotification && (
+            <Notification message={isNotification} onClose={setIsNotification}  />
+        )}
       </form>
     </div>
   )

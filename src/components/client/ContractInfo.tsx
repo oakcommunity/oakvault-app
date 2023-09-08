@@ -2,19 +2,19 @@
 
 import { useAccount, useBalance } from 'wagmi'
 import useOakVault from '../../hooks/useOakVault'
-import { OakVaultProxyAddress } from '../../constants'
+import { OAK_VAULT_PROXY_ADDRESS } from '../../constants'
 
 export function ContractInfo() {
   const { address } = useAccount()
   const { usdcToken, oakToken } = useOakVault()
   const { data: usdcBalance } = useBalance({
-    address: OakVaultProxyAddress!,
+    address: OAK_VAULT_PROXY_ADDRESS!,
     token: usdcToken,
     chainId: 84531,
   })
 
   const { data: oakBalance } = useBalance({
-    address: OakVaultProxyAddress!,
+    address: OAK_VAULT_PROXY_ADDRESS!,
     token: oakToken,
     chainId: 84531,
   })
@@ -28,7 +28,7 @@ export function ContractInfo() {
         </div>
         <div className='flex flex-col mb-2'>
           <div className={'text-sm text-[#faf5b7]'}>contract address</div>
-          <div>{OakVaultProxyAddress!}</div>
+          <div>{OAK_VAULT_PROXY_ADDRESS!}</div>
         </div>
         <div className='flex flex-col mb-2'>
           <div className={'text-sm text-[#faf5b7]'}>usdc balance</div>

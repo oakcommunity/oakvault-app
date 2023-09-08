@@ -10,6 +10,8 @@ type TokenSwapsReturnType = {
   isSwapOAKForUSDCLoading: boolean
   isSwapUSDCForOAKError: boolean
   isSwapOAKForUSDCError: boolean
+  isSwapOakForUSDCSuccess: boolean
+  isSwapUSDCForOAKSuccess: boolean
   swapOakForUSDCHash: `0x${string}` | undefined
   swapUSDCForOakHash: `0x${string}` | undefined
   error: Error | null
@@ -37,6 +39,7 @@ export function useTokenSwaps(
     write: swapUSDCForOakWrite,
     isLoading: isSwapUSDCForOAKLoading,
     isError: isSwapUSDCForOAKError,
+    isSuccess: isSwapUSDCForOAKSuccess,
     data: swapUSDCForOakData,
   } = useContractWrite(usdcToOakConfig)
 
@@ -57,6 +60,7 @@ export function useTokenSwaps(
     write: swapOakForUSDCWrite,
     isLoading: isSwapOAKForUSDCLoading,
     isError: isSwapOAKForUSDCError,
+    isSuccess: isSwapOakForUSDCSuccess,
     data: swapOakForUSDCData,
   } = useContractWrite(oakToUsdcConfig)
 
@@ -69,6 +73,8 @@ export function useTokenSwaps(
     isSwapOAKForUSDCLoading,
     isSwapUSDCForOAKError,
     isSwapOAKForUSDCError,
+    isSwapOakForUSDCSuccess,
+    isSwapUSDCForOAKSuccess,
     swapOakForUSDCHash: swapOakForUSDCData?.hash,
     swapUSDCForOakHash: swapUSDCForOakData?.hash,
     error: SwapUSDCPrepareError || swapOakPrepareError,

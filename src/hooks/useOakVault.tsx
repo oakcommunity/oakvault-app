@@ -1,6 +1,6 @@
 import OakVaultABI from '../abi/OakVaultABI.json'
 import { useContractReads } from 'wagmi'
-import { OakVaultProxyAddress } from '../constants'
+import { OAK_VAULT_PROXY_ADDRESS } from '../constants'
 
 type UseOakVaultResponse = {
   isOwner: boolean
@@ -14,7 +14,7 @@ type UseOakVaultResponse = {
 
 const useOakVault = (address?: `0x${string}`): UseOakVaultResponse => {
   const vaultContract = {
-    address: OakVaultProxyAddress!,
+    address: OAK_VAULT_PROXY_ADDRESS!,
     abi: [
       { inputs: [], name: 'ExceedsSwapLimit', type: 'error' },
       { inputs: [], name: 'InsufficientTokenBalance', type: 'error' },
