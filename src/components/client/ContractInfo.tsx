@@ -44,7 +44,7 @@ export function ContractInfo({
           <div className={'text-sm text-[#faf5b7]'}>contract address</div>
           <div className={'break-words'}>
             <a
-              href={`https://goerli.basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}
+              href={`https://basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}
             >
               {OAK_VAULT_PROXY_ADDRESS!}
             </a>
