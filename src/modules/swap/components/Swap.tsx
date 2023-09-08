@@ -311,7 +311,7 @@ export function Swap() {
               'Approve Oak') ||
             'Swap'}
         </button>
-        <div className={'mt-6 text-red-500 max-h-20 overflow-y-scroll w-full'}>
+        <div className={'mt-6 text-red-500 max-h-20 overflow-y-scroll w-full text-center'}>
           {(isSwapUSDCForOAKPrepareError || isSwapOAKForUSDCPrepareError) && swapError && (
               <>{swapError?.toString().includes('SwapCooldown()') ? 'You can only swap for OAK once a day' : swapError?.toString()}</>
           )}
