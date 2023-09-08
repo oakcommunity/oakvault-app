@@ -1,16 +1,15 @@
 import { Header } from '../components'
-import { Swap } from '../components/client/Swap'
-
-import DepositOakForm from '../components/client/DespositOakForm'
-import DepositUsdcForm from '../components/client/DepositUsdcForm'
+import { Swap } from '../modules/swap/components/Swap'
+import DepositForm from '../components/client/DepositForm'
+import { ContractInfo } from '../components/client/ContractInfo'
 
 export default function Home() {
   return (
     <>
       <Header />
       <Swap />
-      <DepositOakForm />
-      <DepositUsdcForm />
+      <ContractInfo />
+      <DepositForm />
     </>
   )
 }

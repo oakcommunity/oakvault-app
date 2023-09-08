@@ -3,7 +3,7 @@ import { Providers } from './providers'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Public Assembly - Caisson',
+  title: 'Oak Vault - Swap USDC for OAK',
 }
 
 export default function RootLayout({

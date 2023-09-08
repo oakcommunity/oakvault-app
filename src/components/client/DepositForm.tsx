@@ -13,14 +13,18 @@ import useOakVault from '../../hooks/useOakVault'
 import OakVaultABI from '../../abi/OakVaultABI.json'
 import { erc20ABI } from 'wagmi'
 
-const DepositOakForm: React.FC = () => {
+const DepositForm: React.FC = () => {
   const { address } = useAccount()
-  const { isOwner, oakToken } = useOakVault(address)
+  const { isOwner, usdcToken, oakToken } = useOakVault(address)
+
+  const [depositType, setDepositType] = React.useState<'USDC' | 'OAK'>('USDC')
   const [amountToDeposit, setAmountToDeposit] = React.useState<number>(0)
+
+  const tokenAddress = depositType === 'USDC' ? usdcToken : oakToken
 
   //@ts-ignore
   const { data: allowance } = useContractRead({
-    address: oakToken,
+    address: tokenAddress,
     abi: erc20ABI,
     functionName: 'allowance',
     args: [address, process.env.NEXT_PUBLIC_OAK_VAULT_PROXY],
@@ -28,7 +32,7 @@ const DepositOakForm: React.FC = () => {
 
   //@ts-ignore
   const approveConfig = usePrepareContractWrite({
-    address: oakToken,
+    address: tokenAddress,
     abi: erc20ABI,
     functionName: 'approve',
     args: [
@@ -45,8 +49,8 @@ const DepositOakForm: React.FC = () => {
   const depositConfig = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
     abi: OakVaultABI,
-    functionName: 'depositOak',
-    args: [oakToken, amountToDeposit],
+    functionName: depositType === 'USDC' ? 'depositUSDC' : 'depositOak',
+    args: [tokenAddress, amountToDeposit],
     enabled: amountToDeposit > 0,
   })
 
@@ -94,9 +98,18 @@ const DepositOakForm: React.FC = () => {
 
   return (
     <form onSubmit={formik.handleSubmit} className="max-w-sm mx-auto mt-4">
+      <div>
+        <select
+          value={depositType}
+          onChange={(e) => setDepositType(e.target.value as 'USDC' | 'OAK')}
+        >
+          <option value="USDC">USDC</option>
+          <option value="OAK">$OAK</option>
+        </select>
+      </div>
       <div className="mb-4">
         <label htmlFor="amount" className="block text-gray-700 font-semibold">
-          Amount ($OAK)
+          Amount ({depositType === 'USDC' ? 'USDC' : '$OAK'})
         </label>
         <input
           type="number"
@@ -125,4 +138,4 @@ const DepositOakForm: React.FC = () => {
   )
 }
 
-export default DepositOakForm
+export default DepositForm

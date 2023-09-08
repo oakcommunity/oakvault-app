@@ -18,9 +18,9 @@ module.exports = {
         '.no-spinner': {
           '-moz-appearance': 'textfield',
         },
-      };
+      }
 
-      addUtilities(newUtilities, ['responsive', 'hover']);
+      addUtilities(newUtilities, ['responsive', 'hover'])
     },
   ],
 }

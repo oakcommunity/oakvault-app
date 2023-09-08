@@ -33,7 +33,9 @@ const DepositUsdcForm: React.FC = () => {
     functionName: 'approve',
     args: [
       process.env.NEXT_PUBLIC_OAK_VAULT_PROXY,
-      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
+      BigInt(
+        '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+      ),
     ],
   })
 
@@ -90,7 +92,6 @@ const DepositUsdcForm: React.FC = () => {
   })
 
   if (!isOwner) return null
-
 
   return (
     <form onSubmit={formik.handleSubmit} className="max-w-sm mx-auto mt-4">
