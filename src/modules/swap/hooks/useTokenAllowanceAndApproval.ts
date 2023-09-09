@@ -34,6 +34,7 @@ export function useTokenAllowanceAndApproval(
     functionName: 'allowance',
     args: [address!, OAK_VAULT_PROXY_ADDRESS!],
     enabled: !!address,
+    watch: true
   })
 
   // Preparing the approval
