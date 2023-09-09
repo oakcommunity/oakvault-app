@@ -311,6 +311,7 @@ const useOakVault = (address?: `0x${string}`): UseOakVaultResponse => {
       },
     ] as const,
     chainId: CHAIN_ID,
+    watch: true
   }
 
   const { data } = useContractReads({
