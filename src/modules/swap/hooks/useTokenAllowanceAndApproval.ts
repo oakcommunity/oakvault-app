@@ -25,8 +25,9 @@ export function useTokenAllowanceAndApproval(
   OAK_VAULT_PROXY_ADDRESS: `0x${string}`,
   depositType: 'USDC' | 'OAK',
   amountToDeposit: number,
+  amountToAllow: bigint
 ): TokenOperationsReturnType {
-  // Fetching the allowance
+
   //@ts-ignore
   const { data: allowance } = useContractRead({
     address: tokenAddress,
@@ -37,7 +38,6 @@ export function useTokenAllowanceAndApproval(
     watch: true
   })
 
-  // Preparing the approval
   //@ts-ignore
   const approveConfig = usePrepareContractWrite({
     address: tokenAddress,
@@ -45,9 +45,7 @@ export function useTokenAllowanceAndApproval(
     functionName: 'approve',
     args: [
       OAK_VAULT_PROXY_ADDRESS!,
-      BigInt(
-        '115792089237316195423570985008687907853269984665640564039457584007913129639935',
-      ),
+      amountToAllow,
     ],
   })
 

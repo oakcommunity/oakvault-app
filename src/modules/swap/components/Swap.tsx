@@ -67,6 +67,8 @@ export function Swap() {
     usdcBalance?.value,
   )
 
+  console.log('u', usdcAllowance)
+
   const {
     swapOakForUSDCWrite,
     swapUSDCForOakWrite,
@@ -128,13 +130,13 @@ export function Swap() {
     validationSchema,
     onSubmit: async (values) => {
       if (swappingOutUSDC) {
-        if (usdcAllowance === 0n) {
+        if (usdcAllowance < BigInt(amountUSDC)) {
           await approveUSDCWrite?.()
           return // Exit early after approval
         }
         await swapUSDCForOakWrite?.()
       } else {
-        if (oakAllowance === 0n) {
+        if (oakAllowance < BigInt(amountOAK)) {
           await approveOAKWrite?.()
           return // Exit early after approval
         }
@@ -188,18 +190,21 @@ export function Swap() {
   ])
 
   const isDisabled = useMemo(() => {
+    const hasUSDCAllowance = usdcAllowance > BigInt(amountUSDC)
+    const hasOakAllowance = oakAllowance >  BigInt(amountOAK)
+
     const isUSDCConditionMet =
-      swappingOutUSDC && !amountUSDC && usdcAllowance !== BigInt(0n)
+      swappingOutUSDC && !amountUSDC && hasUSDCAllowance
     const isOAKConditionMet =
-      !swappingOutUSDC && !amountOAK && oakAllowance !== BigInt(0n)
+      !swappingOutUSDC && !amountOAK && hasOakAllowance
     const isUSDCErrorConditionMet =
       swappingOutUSDC &&
       isSwapUSDCForOAKPrepareError &&
-      usdcAllowance !== BigInt(0n)
+      hasUSDCAllowance
     const isOAKErrorConditionMet =
       !swappingOutUSDC &&
       isSwapOAKForUSDCPrepareError &&
-      oakAllowance !== BigInt(0n)
+      hasOakAllowance
 
     return (
       isUSDCConditionMet ||
@@ -338,10 +343,10 @@ export function Swap() {
             disabled={isDisabled}
           >
             {(swappingOutUSDC &&
-              usdcAllowance === BigInt(0n) &&
+              usdcAllowance < BigInt(amountUSDC) &&
               'Approve USDC') ||
               (!swappingOutUSDC &&
-                oakAllowance === BigInt(0n) &&
+                oakAllowance < BigInt(amountOAK) &&
                 'Approve Oak') ||
               'Swap'}
           </button>
