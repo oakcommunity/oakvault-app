@@ -4,7 +4,6 @@ import {
   useContractWrite,
   usePrepareContractWrite,
 } from 'wagmi'
-import { MAX_SWAP_LIMIT } from '../../../constants'
 
 type USDCAllowanceAndApprovalReturnType = {
   usdcAllowance: any

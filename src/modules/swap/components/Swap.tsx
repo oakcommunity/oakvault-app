@@ -236,7 +236,7 @@ export function Swap() {
             <input
               type="number"
               name="amount"
-              className="w-full border py-8 px-8 rounded no-spinner text-3xl bg-[#ffffe2]"
+              className="w-full border py-8 px-8 pr-24 rounded no-spinner text-3xl bg-[#ffffe2]"
               placeholder={swappingOutUSDC ? 'USDC' : 'OAK'}
               onChange={handleAmountChange}
               value={formik.values.amount}
@@ -297,7 +297,7 @@ export function Swap() {
             <input
               type="number"
               name="receiveAmount"
-              className="w-full border py-8 px-8 rounded text-3xl bg-[#ffffe2] no-spinner"
+              className="w-full border py-8 px-8 pr-24 rounded text-3xl bg-[#ffffe2] no-spinner"
               placeholder={swappingOutUSDC ? 'OAK' : 'USDC'}
               value={
                 getReceivedAmount().toString() === '0'

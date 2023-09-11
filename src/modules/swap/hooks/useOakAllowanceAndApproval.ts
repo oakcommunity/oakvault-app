@@ -30,6 +30,7 @@ export function useOAKAllowanceAndApproval(
     functionName: 'allowance',
     args: [address!, OakVaultProxyAddress],
     enabled: !!address,
+    watch: true
   })
 
   //@ts-ignore
