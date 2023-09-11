@@ -25,9 +25,8 @@ export function useTokenAllowanceAndApproval(
   OAK_VAULT_PROXY_ADDRESS: `0x${string}`,
   depositType: 'USDC' | 'OAK',
   amountToDeposit: number,
-  amountToAllow: bigint
+  amountToAllow: bigint,
 ): TokenOperationsReturnType {
-
   //@ts-ignore
   const { data: allowance } = useContractRead({
     address: tokenAddress,
@@ -35,7 +34,7 @@ export function useTokenAllowanceAndApproval(
     functionName: 'allowance',
     args: [address!, OAK_VAULT_PROXY_ADDRESS!],
     enabled: !!address,
-    watch: true
+    watch: true,
   })
 
   //@ts-ignore
@@ -43,10 +42,7 @@ export function useTokenAllowanceAndApproval(
     address: tokenAddress,
     abi: erc20ABI,
     functionName: 'approve',
-    args: [
-      OAK_VAULT_PROXY_ADDRESS!,
-      amountToAllow,
-    ],
+    args: [OAK_VAULT_PROXY_ADDRESS!, amountToAllow],
   })
 
   const {

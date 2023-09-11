@@ -35,9 +35,7 @@ const DepositForm: React.FC = () => {
     OAK_VAULT_PROXY_ADDRESS!,
     depositType,
     amountToDeposit,
-      BigInt(
-          amountToDeposit,
-      )
+    BigInt(amountToDeposit),
   )
 
   const validationSchema = Yup.object({
@@ -141,9 +139,14 @@ const DepositForm: React.FC = () => {
         <button
           type="submit"
           className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7] disabled:bg-gray-500"
-          disabled={(isPrepareError && allowance > BigInt(amountToDeposit)) || amountToDeposit === 0}
+          disabled={
+            (isPrepareError && allowance > BigInt(amountToDeposit)) ||
+            amountToDeposit === 0
+          }
         >
-          {allowance < BigInt(amountToDeposit) ? `Approve ${depositType}` : `Deposit ${depositType}`}
+          {allowance < BigInt(amountToDeposit)
+            ? `Approve ${depositType}`
+            : `Deposit ${depositType}`}
         </button>
       </form>
       {!!notificationMessage && (

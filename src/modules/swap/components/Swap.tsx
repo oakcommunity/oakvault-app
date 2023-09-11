@@ -36,28 +36,18 @@ export function Swap() {
     chainId: CHAIN_ID,
   })
 
-  const {
-    oakAllowance,
-    approveOAKWrite,
-    isApproveOAKError,
-    isApproveOAKLoading,
-    isApproveOakSuccess,
-    isApproveOAKPrepareError,
-    approveOakHash,
-  } = useOAKAllowanceAndApproval(
-    address,
-    OAK_VAULT_PROXY_ADDRESS,
-    BigInt(amountOAK),
-    oakToken,
-    oakBalance?.value,
-  )
+  const { oakAllowance, approveOAKWrite, isApproveOakSuccess, approveOakHash } =
+    useOAKAllowanceAndApproval(
+      address,
+      OAK_VAULT_PROXY_ADDRESS,
+      BigInt(amountOAK),
+      oakToken,
+      oakBalance?.value,
+    )
   const {
     usdcAllowance,
     approveUSDCWrite,
-    isApproveUSDCLoading,
     isApproveUSDCSuccess,
-    isApproveUSDCError,
-    isApproveUSDCPrepareError,
     approveUSDCHash,
   } = useUSDCAllowanceAndApproval(
     address,
@@ -67,14 +57,10 @@ export function Swap() {
     usdcBalance?.value,
   )
 
-  console.log('u', usdcAllowance)
-
   const {
     swapOakForUSDCWrite,
     swapUSDCForOakWrite,
-    isSwapOAKForUSDCLoading,
     isSwapUSDCForOAKPrepareError,
-    isSwapUSDCForOAKLoading,
     isSwapOAKForUSDCPrepareError,
     isSwapUSDCForOAKSuccess,
     isSwapOakForUSDCSuccess,
@@ -191,20 +177,15 @@ export function Swap() {
 
   const isDisabled = useMemo(() => {
     const hasUSDCAllowance = usdcAllowance > BigInt(amountUSDC)
-    const hasOakAllowance = oakAllowance >  BigInt(amountOAK)
+    const hasOakAllowance = oakAllowance > BigInt(amountOAK)
 
     const isUSDCConditionMet =
       swappingOutUSDC && !amountUSDC && hasUSDCAllowance
-    const isOAKConditionMet =
-      !swappingOutUSDC && !amountOAK && hasOakAllowance
+    const isOAKConditionMet = !swappingOutUSDC && !amountOAK && hasOakAllowance
     const isUSDCErrorConditionMet =
-      swappingOutUSDC &&
-      isSwapUSDCForOAKPrepareError &&
-      hasUSDCAllowance
+      swappingOutUSDC && isSwapUSDCForOAKPrepareError && hasUSDCAllowance
     const isOAKErrorConditionMet =
-      !swappingOutUSDC &&
-      isSwapOAKForUSDCPrepareError &&
-      hasOakAllowance
+      !swappingOutUSDC && isSwapOAKForUSDCPrepareError && hasOakAllowance
 
     return (
       isUSDCConditionMet ||

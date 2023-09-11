@@ -29,7 +29,7 @@ export function useUSDCAllowanceAndApproval(
     functionName: 'allowance',
     args: [address!, OakVaultProxyAddress],
     enabled: !!address,
-    watch: true
+    watch: true,
   })
 
   //@ts-ignore
