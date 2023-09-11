@@ -1,4 +1,3 @@
-import OakVaultABI from '../abi/OakVaultABI.json'
 import { useContractReads } from 'wagmi'
 import { CHAIN_ID, OAK_VAULT_PROXY_ADDRESS } from '../constants'
 
@@ -10,6 +9,7 @@ type UseOakVaultResponse = {
   timeLimit: number
   usdcToken: `0x${string}`
   oakToken: `0x${string}`
+  owner: `0x${string}`
 }
 
 const useOakVault = (address?: `0x${string}`): UseOakVaultResponse => {
@@ -357,6 +357,7 @@ const useOakVault = (address?: `0x${string}`): UseOakVaultResponse => {
     timeLimit: contractInfo?.[4],
     usdcToken: contractInfo?.[5],
     oakToken: contractInfo?.[6],
+    owner: contractInfo?.[0],
   } as unknown as UseOakVaultResponse
 }
 
