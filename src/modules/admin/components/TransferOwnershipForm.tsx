@@ -29,7 +29,7 @@ const TransferOwnershipForm: React.FC = () => {
     abi: OakVaultABI,
     functionName: 'transferOwnership',
     args: [newOwnerAddress],
-    enabled: isAddress(newOwnerAddress)
+    enabled: isAddress(newOwnerAddress as `0x${string}`)
   })
 
   //@ts-ignore
