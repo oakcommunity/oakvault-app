@@ -32,6 +32,7 @@ const WithdrawForm: React.FC = () => {
     abi: OakVaultABI,
     functionName: withdrawType === 'USDC' ? 'withdrawUSDC' : 'withdrawOak',
     args: [BigInt(amountToWithdraw * 10 ** 6)],
+    enabled: isOwner
   })
 
   //@ts-ignore
