@@ -18,7 +18,7 @@ export function ContractInfo({
       | undefined,
   ) => void
 }) {
-  const { usdcToken, oakToken } = useOakVault()
+  const { usdcToken, oakToken, owner } = useOakVault()
   const { data: usdcBalance } = useBalance({
     address: OAK_VAULT_PROXY_ADDRESS!,
     token: usdcToken,
@@ -45,6 +45,14 @@ export function ContractInfo({
           <div className={'break-words'}>
             <a href={`https://basescan.org/address/${OAK_VAULT_PROXY_ADDRESS}`}>
               {OAK_VAULT_PROXY_ADDRESS!}
+            </a>
+          </div>
+        </div>
+        <div className='flex flex-col mb-2'>
+          <div className={'text-sm text-[#faf5b7]'}>contract owner</div>
+          <div className={'break-words'}>
+            <a href={`https://basescan.org/address/${owner}`}>
+              {owner}
             </a>
           </div>
         </div>
