@@ -36,7 +36,7 @@ const DepositForm: React.FC = () => {
     depositType,
     amountToDeposit,
       BigInt(
-          '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+          amountToDeposit,
       )
   )
 
@@ -66,7 +66,7 @@ const DepositForm: React.FC = () => {
   }
 
   const handleButtonClick = async () => {
-    if (allowance === BigInt(0n) && approveWrite) {
+    if (allowance < BigInt(amountToDeposit) && approveWrite) {
       await approveWrite()
     } else {
       depositWrite?.()
@@ -141,9 +141,9 @@ const DepositForm: React.FC = () => {
         <button
           type="submit"
           className="w-full bg-[#faf5b7] text-[#163a2e] text-xl font-bold py-5 px-4 rounded-2xl hover:bg-[#faf5b7] disabled:bg-gray-500"
-          disabled={isPrepareError || amountToDeposit === 0}
+          disabled={(isPrepareError && allowance > BigInt(amountToDeposit)) || amountToDeposit === 0}
         >
-          Deposit
+          {allowance < BigInt(amountToDeposit) ? `Approve ${depositType}` : `Deposit ${depositType}`}
         </button>
       </form>
       {!!notificationMessage && (
